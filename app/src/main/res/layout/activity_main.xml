@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+
+    <!--<include-->
+        <!--android:id="@+id/tool_bar"-->
+        <!--layout="@layout/tool_bar"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_alignParentBottom="true"/>-->
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="13dp"
+        android:id="@+id/logout_button"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:text="Logout"/>
+
+    <Button
+        android:text="Review Dashboard"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:id="@+id/review_dash"
+        android:layout_below="@+id/search_library"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:drawableLeft="@drawable/ic_assignment_black_24dp"
+        android:textSize="15dp"/>
+
+    <Button
+        android:text="Create Prompt"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:id="@+id/create_task"
+        android:layout_marginTop="158dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:drawableLeft="@drawable/ic_add_circle_outline_black_24dp"
+        android:textSize="15dp"/>
+
+    <!--<Button-->
+        <!--android:text="Edit Prompt"-->
+        <!--android:layout_width="200dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/edit_task"-->
+        <!--android:layout_marginTop="18dp"-->
+        <!--android:layout_below="@+id/create_task"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:drawableLeft="@drawable/ic_build_black_24dp"/>-->
+
+    <Button
+        android:text="Search Prompt Library"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:id="@id/search_library"
+        android:layout_below="@+id/create_task"
+        android:layout_centerHorizontal="true"
+        android:drawableLeft="@drawable/ic_search_black_24dp"
+        android:textSize="15dp"/>
+
+    <TextView
+        android:text="Welcome To Create-A-Task!"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="38dp"
+        android:id="@+id/textView2"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    <TextView
+        android:text="Select an Option"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView3"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:layout_below="@+id/textView2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp" />
+
+</RelativeLayout>

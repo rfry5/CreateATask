@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+
+    <include
+        android:id="@+id/tool_bar"
+        layout="@layout/tool_bar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>
+
+<!--<Button-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="wrap_content"-->
+<!--android:layout_margin="100dp"-->
+<!--android:text="Go to camera"/>-->
+
+    <!--android:weightSum="1"-->
+    <!--android:gravity="center|bottom"-->
+    <!--android:layout_weight=""-->

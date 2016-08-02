@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Item Name"
+        android:ems="10"
+        android:id="@+id/item_name"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/take_small_photo_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Take Photo"
+        android:layout_alignParentBottom="true"
+        android:onClick="btnTakePhoto"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/take_photo_button"
+        android:text="Upload Generic Media"
+        android:id="@+id/upload_media"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/upload_media"
+        android:text="Save"
+        android:id="@+id/save_button"/>
+
+    <Button
+        android:id="@+id/take_video_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Take Video"
+        android:layout_above="@+id/take_small_photo_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:text="Small Size"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/size_small"
+        android:layout_above="@+id/checkBox"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/size_medium"
+        android:layout_toStartOf="@+id/size_medium" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Description"
+        android:ems="10"
+        android:id="@+id/description"
+        android:layout_alignBottom="@+id/location"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="SKU"
+        android:ems="10"
+        android:id="@+id/sku"
+        android:layout_below="@+id/item_name"
+        android:layout_toEndOf="@+id/checkBox5"
+        android:layout_alignLeft="@+id/item_name"
+        android:layout_alignStart="@+id/item_name" />
+
+    <CheckBox
+        android:text="Medium Size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/description"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/size_medium" />
+
+    <CheckBox
+        android:text="Box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/checkBox"
+        android:layout_alignLeft="@+id/size_medium"
+        android:layout_alignStart="@+id/size_medium"
+        android:id="@+id/checkBox5"
+        android:layout_alignRight="@+id/size_large"
+        android:layout_alignEnd="@+id/size_large" />
+
+    <VideoView
+        android:layout_height="92dp"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:id="@+id/videoView1"
+        android:layout_weight="0.21"
+        android:layout_marginTop="97dp"
+        android:layout_below="@+id/editText2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/take_photo_button"/>
+
+    <Button
+        android:id="@+id/take_photo_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Take big Photo"
+        android:layout_above="@+id/take_video_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:text="Large Size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/size_large"
+        android:layout_marginTop="51dp"
+        android:layout_below="@+id/location"
+        android:layout_toRightOf="@+id/size_medium"
+        android:layout_toEndOf="@+id/size_medium" />
+
+    <ImageView
+        android:layout_height="110dp"
+        android:layout_width="160dp"
+        android:visibility="visible"
+        android:id="@+id/imageView1"
+        android:layout_above="@+id/size_small"
+        android:layout_alignParentTop="true" />
+        <!--android:layout_above="@+id/location" />-->
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Location"
+        android:ems="10"
+        android:id="@+id/location"
+        android:layout_below="@+id/sku"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignLeft="@+id/sku"
+        android:layout_alignStart="@+id/sku" />
+
+    <CheckBox
+        android:text="Individual Item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBox"
+        android:layout_below="@+id/size_large"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="17dp" />
+
+    <!--<include layout="@layout/tool_bar"-->
+        <!--android:id="@+id/include"-->
+        <!--android:layout_marginTop="167dp"-->
+        <!--android:layout_below="@+id/take_photo_button"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_alignParentStart="true" />-->
+
+    <!--android:layout_alignParentBottom="true"
+     android:layout_width="match_parent"
+    android:layout_height="wrap_content"-->
+</RelativeLayout>

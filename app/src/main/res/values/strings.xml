@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CreateATask</string>
+    <string name="album_name">CameraSample</string>
+    <string name="cannot">Cannot</string>
+    <string name="no_results">No results found for \"%s\"</string>
+
+</resources>
