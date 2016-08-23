@@ -301,13 +301,16 @@ public class SearchableActivity extends AppCompatActivity {
 
 //        Collections.reverse(arrayOfInfo); Trying to reverse listview to have most recent first
         //Setting empty arraylist for item information
-        final ArrayList<ItemInfo> arrayOfInfo = new ArrayList<ItemInfo>();
+        ArrayList<ItemInfo> arrayOfInfo = new ArrayList<ItemInfo>();
+        ArrayList<ItemInfo> allinfo = helper.getAll();
+        System.out.println("Count of array allinfo " + allinfo.size());
+
+
         // Setting the adapter to the arraylist
         final InfoAdapter adapter = new InfoAdapter(this, arrayOfInfo);
 //        adapter.notifyDataSetChanged();
 
-        ArrayList<ItemInfo> allinfo = helper.getAll();
-        System.out.println("Count of array allinfo " + allinfo.size());
+
 
         // Attach the adapter to a ListView
         listView = (ListView) findViewById(R.id.main_list_view);

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import static android.R.id.list;
 import static com.example.rachel.createatask.AndroidDatabaseManager.indexInfo.index;
 
 
@@ -52,6 +53,8 @@ public class InfoAdapter extends ArrayAdapter<ItemInfo> implements Filterable {
     public InfoAdapter(Context context, ArrayList<ItemInfo> items) {
         super(context, 0, items);
         this.original = new ArrayList<ItemInfo>(items);
+        printArray(original);
+        printArray(items);
         this.filtItems = new ArrayList<ItemInfo>(items);
         this.c = context;
 //        DatabaseHelp helper = new DatabaseHelp(context);
@@ -59,6 +62,12 @@ public class InfoAdapter extends ArrayAdapter<ItemInfo> implements Filterable {
 //        System.out.println("in info adapter" + helper.getAll().size());
     }
 
+    public void printArray(ArrayList<ItemInfo> stuff){
+        System.out.println("Printing out Array List");
+        for(ItemInfo s : stuff){
+            System.out.println(s.getItemname());
+        }
+    }
 //    @Override
 //    public void add(ItemInfo item){
 //        System.out.println("add in infoadapter " + item);
@@ -68,16 +77,12 @@ public class InfoAdapter extends ArrayAdapter<ItemInfo> implements Filterable {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        DatabaseHelp helper = new DatabaseHelp(c);
-        helper.getAll().size();
-        System.out.println("INSIDE GET VIEW " + helper.getAll().size());
+//        DatabaseHelp helper = new DatabaseHelp(c);
+//        helper.getAll().size();
+//        System.out.println("INSIDE GET VIEW " + helper.getAll().size());
         // Get the data item for this position
         ItemInfo item = getItem(position);
         System.out.println("Position in getView " + position);
-        //I JUST ADDED THIS LINE
-        if (original.size() < helper.getAll().size()){
-            original.add(item);
-        }
         System.out.println("Size of orignial in getview " + original.size());
         System.out.println("In get view at adapter LINE 81 " + item.getID());
         System.out.println("In get view at adapter LINE 82 " + item.getItemname());
@@ -127,6 +132,8 @@ public class InfoAdapter extends ArrayAdapter<ItemInfo> implements Filterable {
     }
 
     private class ItemListFilter extends Filter {
+        //Scope of variables... treat like new file
+        DatabaseHelp helper = new DatabaseHelp(c);
 
         @Override
         protected FilterResults performFiltering(CharSequence constraint)
@@ -147,18 +154,20 @@ public class InfoAdapter extends ArrayAdapter<ItemInfo> implements Filterable {
             else
             {
                 System.out.println("INSIDE prefix not null ");
-                final ArrayList<ItemInfo> list = new ArrayList<ItemInfo>(original);
-                final ArrayList<ItemInfo> nlist = new ArrayList<ItemInfo>();
+                original = helper.getAll();
+                ArrayList<ItemInfo> list = new ArrayList<ItemInfo>(original);
+                ArrayList<ItemInfo> nlist = new ArrayList<ItemInfo>();
                 int count = list.size();
 
                 System.out.println("count of original list size " + count);
+//                System.out.println(list.get(5).getItemname());
 
                 for (int i=0; i<count; i++){
-                    final ItemInfo item = list.get(i);
+                    ItemInfo item = list.get(i);
                     System.out.println("Inside for loop adding items " + item.getItemname());
-                    final String value = item.getItemname().toLowerCase();
-                    final String skuValue = item.getSku().toLowerCase();
-                    final String locationValue = item.getLocation().toLowerCase();
+                    String value = item.getItemname().toLowerCase();
+                    String skuValue = item.getSku().toLowerCase();
+                    String locationValue = item.getLocation().toLowerCase();
 
                     if (value.startsWith(prefix)){
                         System.out.println("Value starts with prefix " + item.getItemname());

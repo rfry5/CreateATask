@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.example.rachel.createatask.R.layout.audio;
 
@@ -41,6 +43,12 @@ public class RecordAudio extends AppCompatActivity {
             startPlaying();
         } else {
             stopPlaying();
+
+            //Passing item information into CreateTask activity
+            Intent audioRecord = new Intent(getApplicationContext(), CreateTask.class);
+            audioRecord.putExtra("audio", mFileName);
+            startActivity(audioRecord);
+
         }
     }
 
@@ -129,7 +137,9 @@ public class RecordAudio extends AppCompatActivity {
 
     public RecordAudio() {
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mFileName += "/audiorecordtest.3gp";
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        mFileName += "/AUDIO_" + timestamp + ".3gp";
+        System.out.println(mFileName.toString());
     }
 
     @Override
@@ -150,12 +160,10 @@ public class RecordAudio extends AppCompatActivity {
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         0));
         setContentView(ll);
+
     }
 
-        //Passing item information into CreateTask activity
-//        Intent audioRecord = new Intent(getApplicationContext(), CreateTask.class);
-//        audioRecord.putExtra("audio", mFileName);
-//        startActivity(audioRecord);
+
 
     @Override
     public void onPause() {
@@ -169,5 +177,9 @@ public class RecordAudio extends AppCompatActivity {
             mPlayer.release();
             mPlayer = null;
         }
+    }
+
+    public String getAudioPath(){
+        return mFileName;
     }
 }

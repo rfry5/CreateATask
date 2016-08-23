@@ -61,6 +61,7 @@ import static android.R.attr.id;
 import static android.R.attr.password;
 import static android.R.attr.path;
 import static android.R.attr.type;
+import static android.net.Uri.fromFile;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.Environment.getExternalStoragePublicDirectory;
@@ -146,7 +147,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         //Audio
         Intent i = getIntent();
         String audio = i.getStringExtra("audio");
-        System.out.println(audio);
+        System.out.println("RETURN BACK TO CREATE TASK " + audio);
 
         //Bottom Bar navigation
         mBottomBar = BottomBar.attach(this, savedInstanceState);
@@ -221,7 +222,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
     //Creating URI from file
     private static Uri getOutputMediaFileUri(int type){
-        return Uri.fromFile(getOutputMediaFile(type));
+        return fromFile(getOutputMediaFile(type));
     }
 
 
@@ -309,7 +310,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     //Need this so the photo shows up in the gallery (for some reason it wouldn't otherwise)
     private void scanMedia(String path) {
         File file = new File(path);
-        Uri uri = Uri.fromFile(file);
+        Uri uri = fromFile(file);
         Intent scanFileIntent = new Intent(
                 Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri);
         sendBroadcast(scanFileIntent);
@@ -370,6 +371,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 mImageView.setImageBitmap(mImageBitmap);
                 mImageView.setVisibility(View.VISIBLE);
             }
+            mCapturedImageURI = Uri.fromFile(new File(picturePath));
         }
         if (requestCode == RESULT_LOAD_VIDEO && resultCode == RESULT_OK && null !=data){
             Uri selectedVideo = data.getData();

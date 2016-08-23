@@ -347,7 +347,9 @@ public class DatabaseHelp extends SQLiteOpenHelper {
     //Returns all item info from the database
     public ArrayList<ItemInfo> getAll(){
 
-        System.out.println("START OF GETALL IN DATABASE HELP");
+        boolean debug = false;
+        if (debug == true)
+            System.out.println("START OF GETALL IN DATABASE HELP");
 
         ArrayList<ItemInfo> info = new ArrayList<ItemInfo>();
         db = this.getReadableDatabase();
