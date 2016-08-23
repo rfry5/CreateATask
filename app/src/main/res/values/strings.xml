@@ -3,5 +3,8 @@
     <string name="album_name">CameraSample</string>
     <string name="cannot">Cannot</string>
     <string name="no_results">No results found for \"%s\"</string>
+    <string name="username"><u>Username</u></string>
+    <string name="password"><u>Password</u></string>
+    <string name="search_hint">search hint</string>
 
 </resources>

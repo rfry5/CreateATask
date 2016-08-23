@@ -1,5 +1,8 @@
 package com.example.rachel.createatask;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import static android.R.attr.password;
 
 /**
@@ -9,6 +12,9 @@ import static android.R.attr.password;
 public class ItemInfo {
 
     String itemname, sku, location, description, video, picture;
+    byte[] thumbnail;
+    int iD;
+
 
     public void setItemname(String itemname) {
         this.itemname = itemname;
@@ -50,5 +56,20 @@ public class ItemInfo {
 
     public void setPicture(String pic) { this.picture = pic; }
 
+    public void setThumbnail(byte[] pic) {
+        this.thumbnail = pic;
+    }
+
+    public byte[] getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setID(int iD) {
+        this.iD = iD;
+    }
+
+    public int getID() {
+        return iD;
+    }
 
 }

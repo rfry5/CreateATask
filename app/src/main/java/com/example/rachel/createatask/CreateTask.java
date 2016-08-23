@@ -11,6 +11,8 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
@@ -29,12 +31,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -42,6 +46,7 @@ import android.widget.VideoView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnMenuTabClickListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -51,50 +56,35 @@ import java.util.Date;
 import java.util.List;
 
 import static android.R.attr.checked;
+import static android.R.attr.data;
 import static android.R.attr.id;
 import static android.R.attr.password;
+import static android.R.attr.path;
 import static android.R.attr.type;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+import static com.example.rachel.createatask.R.layout.audio;
 
 public class CreateTask extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int ACTION_TAKE_PHOTO_S = 2;
-    private static final int ACTION_TAKE_VIDEO = 3;
-    protected static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 0;
 
-    private static final String BITMAP_STORAGE_KEY = "viewbitmap";
-    private static final String IMAGEVIEW_VISIBILITY_STORAGE_KEY = "imageviewvisibility";
     private Bitmap mImageBitmap;
-    //
-    private static final String VIDEO_STORAGE_KEY = "viewvideo";
-    private static final String VIDEOVIEW_VISIBILITY_STORAGE_KEY = "videoviewvisibility";
+
     private VideoView mVideoView;
     private Uri mVideoUri;
-
-    private String mCurrentPhotoPath;
-    static final int REQUEST_TAKE_PHOTO = 1;
     private ImageView mImageView;
-
-    private static final String JPEG_FILE_PREFIX = "IMG_";
-    private static final String JPEG_FILE_SUFFIX = ".jpg";
-
-    // app that works
     private Uri mCapturedImageURI;
     private Uri mCapturedVideoURI;
-    private static final int RESULT_LOAD_IMAGE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
-    private static final int RESULT_LOAD_VIDEO = 1;
     private static final int REQUEST_VIDEO_CAPTURE = 3;
-//    ArrayList<MyImage> images;
-//    ArrayList<MyVideos> videos;
-    // 1 = take video, 2 = picture
     private static int VID_OR_PIC = 1;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+    private static final int RESULT_LOAD_IMAGE = 4;
+    private static final int RESULT_LOAD_VIDEO = 5;
 
 
     //For database
@@ -103,21 +93,10 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     //For Bottom Bar navigation
     private BottomBar mBottomBar;
 
-
     //For save button, play button over video and item information input
-    Button bSaveButton;
+    Button bSaveButton, bRecord;
     ImageButton mPlayButton;
     EditText etItemName, etSku, etLocation, etDescription;
-
-
-
-    /*
-    // taking the video
-    private void dispatchTakeVideoIntent() {
-        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        startActivityForResult(takeVideoIntent, ACTION_TAKE_VIDEO);
-    }
-    */
 
 
     //Setting button listener for take photo and take video
@@ -139,24 +118,35 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 }
             };
 
+//    Button.OnClickListener mUploadGalleryListener =
+//            new Button.OnClickListener(){
+//                @Override
+//                public void onClick(View v) {
+//                    activeGalleryPhoto();
+//                }
+//            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_create);
 
-//        images = new ArrayList();
-//        videos = new ArrayList();
-
         etItemName = (EditText) findViewById(R.id.item_name);
         etSku = (EditText) findViewById(R.id.sku);
         etDescription = (EditText) findViewById(R.id.description);
         etLocation = (EditText) findViewById(R.id.location);
 
-
         //For save button
         bSaveButton = (Button) findViewById(R.id.save_button);
         bSaveButton.setOnClickListener(this);
+        //For recrod audio
+        bRecord = (Button) findViewById(R.id.record_audio_button);
+        bRecord.setOnClickListener(this);
+
+        //Audio
+        Intent i = getIntent();
+        String audio = i.getStringExtra("audio");
+        System.out.println(audio);
 
         //Bottom Bar navigation
         mBottomBar = BottomBar.attach(this, savedInstanceState);
@@ -203,42 +193,44 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 MediaStore.ACTION_VIDEO_CAPTURE
         );
 
-
+//        Button gallBtn = (Button) findViewById(R.id.gallery_upload);
+//        setBtnListenerOrDisable(
+//                gallBtn,
+//                mUploadGalleryListener,
+//                MediaStore.ACTION_PICK
+//        );
     }
 
+    //When upload from gallery button is clicked
+    public void gallUpload(View view){
+        System.out.println("in gallery upload");
+        final Dialog dialog = new Dialog(CreateTask.this);
+        dialog.setContentView(R.layout.upload_dialog_box);
+        dialog.show();
+        dialog.findViewById(R.id.from_gallery_click).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                activeGalleryPhoto();
+            }
+        });
+        dialog.findViewById(R.id.video_gallery).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                activeGalleryVideo();
+            }
+        });
+    }
 
-    /* For DB
-        video location = mCapturedVideoURI.getpath()
-        picture = mCapturedPictureURI.getpath()
-
-            -- lookup how to store picture/video to phone DB
-
-        iteminfo newitem = new Iteminfo();
-        newitem.Video = mcapturedvideouri.getpath();
-        newitem.Pic = picture;
-        newitme.sku ...
-        newitem.name = ....
-
-        helper.insert(newitem);
-
-    */
-
-
-
+    //Creating URI from file
     private static Uri getOutputMediaFileUri(int type){
         return Uri.fromFile(getOutputMediaFile(type));
     }
 
-    //Removed after help with Ben
-//    private static Uri getOutputMediaFileUri(){
-//        return Uri.fromFile(getOutputMediaFile());
-//    }
 
     /** Create a File for saving an image or video */
     //Changed () to int type
     private static File getOutputMediaFile(int type){
 
         //"" to send it to Pictures folder in gallery
+        //File path is pointing to gallery
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "");
 
@@ -249,7 +241,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 return null;
             }
         }
-
+        //Time stamp image and name the image (still blank, allocating file)
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE){
@@ -261,77 +253,87 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         } else {
             return null;
         }
-
-//        // Create a media file name
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        File mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-//                    "VID_"+ timeStamp + ".mp4");
-
+        System.out.println("THE NAME OF THE PATH: Path is "+mediaFile.getAbsolutePath());
         return mediaFile;
     }
 
+    //Upload PICTURE from Gallery
+    private void activeGalleryPhoto() {
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, RESULT_LOAD_IMAGE);
+    }
+
+    private void activeGalleryVideo() {
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, RESULT_LOAD_VIDEO);
+    }
+
+    //Take video
     private void activeTakeVideo(){
         VID_OR_PIC = 1;
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         if(takeVideoIntent.resolveActivity(getPackageManager()) != null){
-//            System.out.println("I am here in the video thing!!");
-//            String fileName = "temp.jpg";
             mCapturedVideoURI = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
-//            mCapturedVideoURI = getOutputMediaFileUri();
             takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedVideoURI);
             takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-            startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);        }
-    }
-
-    /**
-     * take a photo
-     */
-    private void activeTakePhoto() {
-        VID_OR_PIC = 2;
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-
-//            mCapturedImageURI = getOutputMediaFileUri();
-//            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
-//            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-
-            String fileName = "temp1.jpg";
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.TITLE, fileName);
-            mCapturedImageURI =  getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-//            mCapturedImageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
         }
     }
 
+    //Take photo
+    private void activeTakePhoto() {
+            VID_OR_PIC = 2;
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+
+                //The three lines below send the picture to the gallery, but the app crashes when exiting the camera
+//                ContentValues values = new ContentValues();
+//                values.put(MediaStore.Images.Media.TITLE, "thing.jpg");
+//                Uri mCapturedImageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
+
+                //The two lines below work when taking and saving a picture with a filepath, but it does not
+                //show up in the gallery unless I restart the phone
+                mCapturedImageURI = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+                takePictureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
+
+                System.out.println("INSIDE TAKE PICTURE INTENT "+ mCapturedImageURI.getPath());
+                System.out.println("TAKEPICINTENT "+ takePictureIntent.getExtras());
+                Toast.makeText(this, "IN HERE Image saved to:\n" + takePictureIntent.getExtras(), Toast.LENGTH_LONG).show();
+                //Now fill URI with picture
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
+            }
+    }
+
+    //Need this so the photo shows up in the gallery (for some reason it wouldn't otherwise)
+    private void scanMedia(String path) {
+        File file = new File(path);
+        Uri uri = Uri.fromFile(file);
+        Intent scanFileIntent = new Intent(
+                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri);
+        sendBroadcast(scanFileIntent);
+    }
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         System.out.println(requestCode);
         super.onActivityResult(requestCode, resultCode, data);
-//        mPlayButton = (ImageButton) findViewById(R.id.play_button);
+        mPlayButton = (ImageButton) findViewById(R.id.play_button);
 
         if (VID_OR_PIC == 2 && requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-//            String[] projection = {MediaStore.Images.Media.DATA};
-//            System.out.println("INHERE");
-//            Cursor cursor = managedQuery(mCapturedImageURI, projection, null, null, null);
-//            int column_index_data = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//            cursor.moveToFirst();
-//            String picturePath = cursor.getString(column_index_data);
-            String picturePath = mCapturedImageURI.getPath();
-            MyImage image = new MyImage();
-            image.setTitle("Test");
-            image.setDescription("test take a photo and add it to list view");
-            image.setDatetime(System.currentTimeMillis());
-            image.setPath(picturePath);
-//            images.add(image);
-            mImageBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(image.getPath()),200,250);
+            Toast.makeText(this, "Image saved to:\n" + data.getData(), Toast.LENGTH_LONG).show();
+            //This is here because the photo won't appear in the gallery unless I have this...
+            scanMedia(mCapturedImageURI.getPath());
+
+            mImageBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(mCapturedImageURI.getPath()),200,250);
             mImageView.setImageBitmap(mImageBitmap);
             mImageView.setVisibility(View.VISIBLE);
         }
         // this is for video
         if(VID_OR_PIC == 1 && requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK){
+            Toast.makeText(this, "Video saved to:\n" + data.getData(), Toast.LENGTH_LONG).show();
             mVideoView.setVideoPath(mCapturedVideoURI.getPath());
+            mVideoView.seekTo(100);
             mVideoView.setOnTouchListener(new View.OnTouchListener()
             {
                 @Override
@@ -343,84 +345,60 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                     else
                     {
                         mVideoView.start();
+                        mPlayButton.setVisibility(View.GONE);
                         return false;
                     }
                 }
             });
 
-           /* mVideoView.getLayoutParams().height = (int) getResources().getDimension(R.dimen.imageview_height);
-            mVideoView.getLayoutParams().width = (int) getResources().getDimension(R.dimen.imageview_width);
-            System.out.println(mVideoView.getHeight());
-            System.out.println(mVideoView.getWidth());
-            mVideoView.setMinimumWidth((int) getResources().getDimension(R.dimen.imageview_width));
-            mVideoView.setMinimumHeight((int) getResources().getDimension(R.dimen.imageview_height));
-*/
             mVideoView.setVisibility(View.VISIBLE);
         }
-    }
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null !=data){
+            //Gallery is opened, now select photo and display it in imageview and save
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+            System.out.println("PATH OF THE SELECTED PHOTO" + picturePath);
 
-
-    /*
-    // camera handle -- look into this
-    private void handleSmallCameraPhoto(Intent intent) {
-        Log.d("PIPE", "Line 224 -- handling the intent");
-        Bundle extras = intent.getExtras();
-        mImageBitmap = (Bitmap) extras.get("data");
-        mImageView.setImageBitmap(mImageBitmap);
-        mVideoUri = null;
-        mImageView.setVisibility(View.VISIBLE);
-        mVideoView.setVisibility(View.INVISIBLE);
-    }
-    */
-
-
-    // create the image file and name
-    private File createImageFile() throws IOException {
-        Log.d("PIPE", "Line 231 -- naming the picture");
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
-        File image = File.createTempFile(
-                imageFileName,
-                ".jpg",
-                storageDir
-        );
-
-
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-        Log.d("FILE", mCurrentPhotoPath);
-        return image;
-    }
-
-
-/*
-    // take the photo or video -- listener
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("PIPE", "LINE 278 - switch to take vid or pic");
-        switch (requestCode) {
-
-            case ACTION_TAKE_PHOTO_S: {
-                if (resultCode == RESULT_OK) {
-                    handleSmallCameraPhoto(data);
-//                    savePic(data);
+            //Displaying it to the imageview
+            if (mCapturedImageURI == null){
+                mImageBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(picturePath),200,250);
+                mImageView.setImageBitmap(mImageBitmap);
+                mImageView.setVisibility(View.VISIBLE);
+            }
+        }
+        if (requestCode == RESULT_LOAD_VIDEO && resultCode == RESULT_OK && null !=data){
+            Uri selectedVideo = data.getData();
+            String[] filePathColumn = {MediaStore.Video.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedVideo, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String videoPath = cursor.getString(columnIndex);
+            cursor.close();
+            mVideoView.setVideoPath(videoPath);
+            mVideoView.seekTo(100);
+            mVideoView.setOnTouchListener(new View.OnTouchListener()
+            {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (mVideoView.isPlaying())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        mVideoView.start();
+                        mPlayButton.setVisibility(View.GONE);
+                        return false;
+                    }
                 }
-                break;
-            } // ACTION_TAKE_PHOTO_S
-
-            case ACTION_TAKE_VIDEO: {
-                if (resultCode == RESULT_OK) {
-                    handleCameraVideo(data);
-                }
-                break;
-            } // ACTION_TAKE_VIDEO
-        } // switch
+            });
+        }
     }
-*/
 
     public static boolean isIntentAvailable(Context context, String action) {
         final PackageManager packageManager = context.getPackageManager();
@@ -446,15 +424,16 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     }
 
 
-    //Bottom bar navigation
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
 
-        // Necessary to restore the BottomBar's state, otherwise we would
-        // lose the current tab on orientation change.
-        mBottomBar.onSaveInstanceState(outState);
-    }
+//    //Bottom bar navigation
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        // Necessary to restore the BottomBar's state, otherwise we would
+//        // lose the current tab on orientation change.
+//        mBottomBar.onSaveInstanceState(outState);
+//    }
 
 
     //Saving item information to database
@@ -472,7 +451,8 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 String skustring = sku.getText().toString();
                 String locationstring = location.getText().toString();
                 String descriptionstring = description.getText().toString();
-
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                mImageBitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
 
                 //Passing through database
                 ItemInfo c = new ItemInfo();
@@ -480,12 +460,26 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 c.setSku(skustring);
                 c.setLocation(locationstring);
                 c.setDescription(descriptionstring);
+
+                //If the null, return null, if I uploaded photo, set it to that path, if I took photo, set it to that path
                 //Setting URI path to a string
-                c.setPicture(mCapturedImageURI.getPath());
-                c.setVideo(mCapturedVideoURI.getPath());
+                if (mCapturedImageURI == null){
+                    c.setPicture(null);
+                } else if (mCapturedImageURI !=null){
+                    c.setPicture(mCapturedImageURI.getPath());
+                    System.out.println(mCapturedImageURI.getPath());
+                }
 
+                //If the video path is null, return null
+                if (mCapturedVideoURI == null){
+                    c.setVideo(null);
+                } else if (mCapturedVideoURI.getPath() != null){
+                    c.setVideo(mCapturedVideoURI.getPath());
+                }
+//                System.out.println(mCapturedVideoURI.getPath());
+                c.setThumbnail(stream.toByteArray());
 
-
+                //Inserting in database
                 helper.insertItem(c);
 
                 Toast temp = Toast.makeText(CreateTask.this, "Save Successful", Toast.LENGTH_SHORT);
@@ -497,9 +491,10 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
                 break;
 
+            case R.id.record_audio_button:
+                System.out.println("In record click");
+                startActivity(new Intent(this, RecordAudio.class));
         }
-
-
     }
 }
 

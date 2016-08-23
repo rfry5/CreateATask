@@ -8,7 +8,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:queryHint="Search for Items or Media"
-        android:id="@+id/search_items">
+        android:id="@+id/search_items"
+        android:imeOptions="actionSearch"
+        android:inputType="">
     </SearchView>
 
     <TextView
@@ -19,10 +21,15 @@
         android:textSize="20sp"
         android:padding="5dp"/>
 
-    <ListView
+    <!--<com.baoyz.swipemenulistview.SwipeMenuListView-->
+        <!--android:id="@+id/main_list_view"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+    <com.baoyz.swipemenulistview.SwipeMenuListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/main_list_view">
-    </ListView>
+        android:id="@+id/main_list_view"
+        android:isScrollContainer="false" />
 
 </LinearLayout>

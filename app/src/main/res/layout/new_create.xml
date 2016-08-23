@@ -203,12 +203,11 @@
 
         <RelativeLayout
             android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
         <VideoView
             android:layout_width="fill_parent"
-            android:layout_height="220dp"
+            android:layout_height="250dp"
             android:id="@+id/videoView1"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
@@ -221,13 +220,14 @@
                 android:id="@+id/take_video_button"
                 android:layout_below="@+id/videoView1"/>
 
-            <!--<ImageButton-->
-                <!--android:id="@+id/play_button"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_gravity="center_vertical|center_horizontal"-->
-                <!--android:src="@drawable/ic_play_arrow_black_24dp"-->
-                <!--/>-->
+            <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_play_arrow_black_24dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="97dp" />
 
         </RelativeLayout>
 
@@ -238,11 +238,19 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload Media"
+                android:id="@+id/upload_from_gallery"
+                android:onClick="gallUpload"/>
+
 
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Record Audio"/>
+                android:text="Record Audio"
+                android:id="@+id/record_audio_button"/>
 
             <Button
                 android:layout_width="match_parent"

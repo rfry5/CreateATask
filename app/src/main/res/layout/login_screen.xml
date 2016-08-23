@@ -22,49 +22,62 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Username"
+        android:text="@string/username"
         android:textSize="20dp"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"/>
 
     <EditText
         android:id="@+id/insert_username"
         android:inputType="text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp" />
 
     <TextView
         android:id="@+id/pass_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Password"
-        android:textSize="20dp"/>
+        android:text="@string/password"
+        android:textSize="20dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"/>
 
     <EditText
         android:id="@+id/insert_password"
         android:inputType="textPassword"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"/>
 
     <Button
         android:id="@+id/login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Login"
-        android:textSize="20sp"
+        android:textSize="14sp"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="70dp"
-        android:layout_marginRight="70dp"
+        android:layout_marginLeft="150dp"
+        android:layout_marginRight="150dp" />
 
-        />
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Register"
-        android:textSize="20sp"
+        android:textSize="14sp"
         android:id="@+id/register_button"
-        android:layout_marginLeft="70dp"
-        android:layout_marginRight="70dp"/>
+        android:layout_marginLeft="100dp"
+        android:layout_marginRight="100dp"
+        android:background="@android:color/transparent"
+       android:layout_alignParentBottom="true"/>
+
+    </RelativeLayout>
 
 </LinearLayout>
 

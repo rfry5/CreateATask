@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload Photo"
+        android:onClick="toGalleryClick"
+        android:id="@+id/from_gallery_click"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload Video"
+        android:onClick="toVideoGallery"
+        android:id="@+id/video_gallery"
+        android:layout_below="@+id/from_gallery_click"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload Audio"
+        android:onClick="toAudio"
+        android:id="@+id/audio_gallery"
+        android:layout_below="@+id/video_gallery"/>
+
+
+
+</RelativeLayout>
