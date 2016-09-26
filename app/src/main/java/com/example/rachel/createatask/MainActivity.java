@@ -32,12 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bCreateButton.setOnClickListener(this);
         bSearchLib.setOnClickListener(this);
         bDashboard.setOnClickListener(this);
-
-
-
     }
-
-
 
     @Override
     public void onClick(View v) {
@@ -63,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.search_library:
+                System.out.println("Inside search library button on home screen");
                 startActivity(new Intent(this, SearchableActivity.class));
                 break;
 

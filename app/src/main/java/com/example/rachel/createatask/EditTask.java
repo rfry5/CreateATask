@@ -1,5 +1,6 @@
 package com.example.rachel.createatask;
 
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -23,10 +24,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -35,8 +39,10 @@ import com.roughike.bottombar.BottomBarTab;
 import com.roughike.bottombar.OnMenuTabClickListener;
 import com.roughike.bottombar.OnTabSelectedListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Blob;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +50,7 @@ import java.util.List;
 import static com.example.rachel.createatask.R.id.location;
 import static com.example.rachel.createatask.R.id.sku;
 
-public class EditTask extends AppCompatActivity implements View.OnClickListener{
+public class EditTask extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private Bitmap mImageBitmap;
     String selected_ID = "";
@@ -60,6 +66,8 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
     private static int VID_OR_PIC = 1;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+    private static final int RESULT_LOAD_IMAGE = 4;
+    private static final int RESULT_LOAD_VIDEO = 5;
     SQLiteDatabase db;
 
 
@@ -73,6 +81,11 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
     Button bSaveButton;
     ImageButton mPlayButton;
     EditText etItemName, etSku, etLocation, etDescription;
+    String spinTypeString, spinSizeString;
+    Spinner mSpinner;
+
+    //For prompt command text
+    EditText etCom1, etCom2, etCom3, etCom4, etCom5, etCom6;
 
 
     //Setting button listener for take photo and take video
@@ -95,6 +108,36 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
             };
 
 
+    //When upload from gallery button is clicked (gallUpload is defined as onClick in new_create xml file)
+    public void galleryUpload(View view){
+        System.out.println("in gallery upload");
+        final Dialog dialog = new Dialog(EditTask.this);
+        dialog.setContentView(R.layout.upload_dialog_box);
+        dialog.show();
+        dialog.findViewById(R.id.from_gallery_click).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                activeGalleryPhoto();
+            }
+        });
+        dialog.findViewById(R.id.video_gallery).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                activeGalleryVideo();
+            }
+        });
+    }
+
+    //Upload PICTURE from Gallery
+    private void activeGalleryPhoto() {
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, RESULT_LOAD_IMAGE);
+    }
+
+    //Upload VIDEO from Gallery
+    private void activeGalleryVideo() {
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, RESULT_LOAD_VIDEO);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +150,14 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
         etLocation = (EditText) findViewById(R.id.location_display);
         mImageView = (ImageView) findViewById(R.id.imageView_display);
         mVideoView = (VideoView) findViewById(R.id.videoView_display);
+        mPlayButton = (ImageButton) findViewById(R.id.play_button2);
+        etCom1 = (EditText) findViewById(R.id.command_line1);
+        etCom2 = (EditText) findViewById(R.id.command_line2);
+        etCom3 = (EditText) findViewById(R.id.command_line3);
+        etCom4 = (EditText) findViewById(R.id.command_line4);
+        etCom5 = (EditText) findViewById(R.id.command_line5);
+        etCom6 = (EditText) findViewById(R.id.command_line6);
+//        mSpinner = (Spinner) findViewById(R.id.type_spinner);
 
         //Getting info when Listview was clicked from library (SearchableActivity) activity
         Intent i = getIntent();
@@ -117,11 +168,69 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
         String image = i.getStringExtra("image");
         String video = i.getStringExtra("video");
         String post = i.getStringExtra("position");
-        System.out.println("Position " + post);
+        String c1 = i.getStringExtra("com1");
+        String c2 = i.getStringExtra("com2");
+        String c3 = i.getStringExtra("com3");
+        String c4 = i.getStringExtra("com4");
+        String c5 = i.getStringExtra("com5");
+        String c6 = i.getStringExtra("com6");
+        spinTypeString = i.getStringExtra("spinType");
+        spinSizeString = i.getStringExtra("spinSize");
+
+        System.out.println("IN EDIT TASK SPINTYPE STRING " + spinTypeString);
+
+        System.out.println("IN EDIT TASK LINE 161 " + c1);
+        //ADDED TODAY
+        byte[] imageBlob = i.getByteArrayExtra("thumbnailblob"); //just added
+        /////
         etItemName.setText(item);
         etSku.setText(sku);
         etLocation.setText(location);
         etDescription.setText(description);
+        etCom1.setText(c1);
+        etCom2.setText(c2);
+        etCom3.setText(c3);
+        etCom4.setText(c4);
+        etCom5.setText(c5);
+        etCom6.setText(c6);
+
+        //Spinner for size selection
+        Spinner spinner = (Spinner) findViewById(R.id.size_spinner);
+        spinner.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.size_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        //Setting spinner state
+        String compareValueSize = spinSizeString;
+        System.out.println("Spin size string" + spinSizeString);
+        if (!compareValueSize.equals(null)) {
+            int spinnerPositionSize = adapter.getPosition(compareValueSize);
+            spinner.setSelection(spinnerPositionSize);
+            System.out.println("IN EDIT TASK SPINNER COMPARE VALUE ");
+        }
+
+        //Spinner for item type selection
+        Spinner spinnerType = (Spinner) findViewById(R.id.type_spinner);
+        spinnerType.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapterType = ArrayAdapter.createFromResource(this,
+                R.array.type_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinnerType.setAdapter(adapterType);
+
+        //Setting Spinner state
+        String compareValue = spinTypeString;
+        if (!compareValue.equals(null)) {
+            int spinnerPosition = adapterType.getPosition(compareValue);
+            spinnerType.setSelection(spinnerPosition);
+            System.out.println("IN EDIT TASK SPINNER COMPARE VALUE ");
+        }
+
         //If the image or the video is null, this crashes
         mImageBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(image),200,250);
         mImageView.setImageBitmap(mImageBitmap);
@@ -141,7 +250,7 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
                 else
                 {
                     mVideoView.start();
-//                    mPlayButton.setVisibility(View.GONE);
+                    mPlayButton.setVisibility(View.GONE);
                     return false;
                 }
 
@@ -195,6 +304,37 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
                 mTakeVidOnClickListener,
                 MediaStore.ACTION_VIDEO_CAPTURE
         );
+    }
+
+    //Saving spinner states
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // An item was selected. You can retrieve the selected item using
+        switch (parent.getId()) {
+            case R.id.size_spinner:
+                // An item was selected. You can retrieve the selected item using
+                parent.getItemAtPosition(position);
+                spinSizeString = parent.getItemAtPosition(position).toString();
+
+                System.out.println("spinnerSize in onItemSwitch " + parent.getItemAtPosition(position));
+
+                break;
+
+            case R.id.type_spinner:
+
+                parent.getItemAtPosition(position);
+                spinTypeString = parent.getItemAtPosition(position).toString();
+
+                System.out.println("spinnerType in onItemSwitch " + parent.getItemAtPosition(position));
+
+                break;
+
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
 
@@ -264,7 +404,7 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         System.out.println(requestCode);
         super.onActivityResult(requestCode, resultCode, data);
-        mPlayButton = (ImageButton) findViewById(R.id.play_button);
+        mPlayButton = (ImageButton) findViewById(R.id.play_button2);
 
         if (VID_OR_PIC == 2 && requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             String picturePath = mCapturedImageURI.getPath();
@@ -293,11 +433,59 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
                     else
                     {
                         mVideoView.start();
+                        mPlayButton.setVisibility(View.GONE);
                         return false;
                     }
                 }
             });
             mVideoView.setVisibility(View.VISIBLE);
+        }
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null !=data){
+            //Gallery is opened, now select photo and display it in imageview and save
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+            System.out.println("PATH OF THE SELECTED PHOTO" + picturePath);
+
+            //Displaying it to the imageview
+            if (mCapturedImageURI == null){
+                mImageBitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(picturePath),200,250);
+                mImageView.setImageBitmap(mImageBitmap);
+                mImageView.setVisibility(View.VISIBLE);
+            }
+            mCapturedImageURI = Uri.fromFile(new File(picturePath));
+        }
+        if (requestCode == RESULT_LOAD_VIDEO && resultCode == RESULT_OK && null !=data){
+            Uri selectedVideo = data.getData();
+            String[] filePathColumn = {MediaStore.Video.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedVideo, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String videoPath = cursor.getString(columnIndex);
+            cursor.close();
+            mVideoView.setVideoPath(videoPath);
+            mCapturedVideoURI = Uri.fromFile(new File(videoPath));
+            mVideoView.seekTo(100);
+            mVideoView.setOnTouchListener(new View.OnTouchListener()
+            {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (mVideoView.isPlaying())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        mVideoView.start();
+                        mPlayButton.setVisibility(View.GONE);
+                        return false;
+                    }
+                }
+            });
         }
     }
 
@@ -368,21 +556,42 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
                 etSku = (EditText) findViewById(R.id.sku_display);
                 etDescription = (EditText) findViewById(R.id.description_display);
                 etLocation = (EditText) findViewById(R.id.location_display);
+                etCom1 = (EditText) findViewById(R.id.command_line1);
+                etCom2 = (EditText) findViewById(R.id.command_line2);
+                etCom3 = (EditText) findViewById(R.id.command_line3);
+                etCom4 = (EditText) findViewById(R.id.command_line4);
+                etCom5 = (EditText) findViewById(R.id.command_line5);
+                etCom6 = (EditText) findViewById(R.id.command_line6);
+
 
                 //Gathering new data from the R.id views
                 String itemUpdate= etItemName.getText().toString();
                 String skuUpdate = etSku.getText().toString();
                 String locationUpdate = etLocation.getText().toString();
                 String descriptionUpdate = etDescription.getText().toString();
+                String com1Update = etCom1.getText().toString();
+                String com2Update = etCom2.getText().toString();
+                String com3Update = etCom3.getText().toString();
+                String com4Update = etCom4.getText().toString();
+                String com5Update = etCom5.getText().toString();
+                String com6Update = etCom6.getText().toString();
+                String spinTypeUpdate = spinTypeString;
+                String spintSizeUpdate = spinSizeString;
+                System.out.println("IN UPDATE SPINNER TYPE " + spinTypeUpdate);
+
 
                 //Getting values passed from Listview click
                 Intent i = getIntent();
                 String post = i.getStringExtra("position");
                 String image = i.getStringExtra("image");
                 String video = i.getStringExtra("video");
+//                String com1 = i.getStringExtra("com1");
                 Integer position = Integer.valueOf(String.valueOf(post));
                 System.out.println("In update with position " + position);
 
+                //////ADDED TODAY
+                byte[] imageBlob = i.getByteArrayExtra("thumbnailblob"); //just added
+                ////////
 
                 //Have to take photo with update or it will crash!! Same with video
 //                String picturePath = mCapturedImageURI.getPath();
@@ -400,10 +609,35 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
                 ItemInfo c = new ItemInfo();
                 c.setID(position);
                 c.setItemname(itemUpdate);
-                System.out.println("UPDATE ITEM NAME" + itemUpdate);
                 c.setSku(skuUpdate);
                 c.setLocation(locationUpdate);
                 c.setDescription(descriptionUpdate);
+                c.setCom1(com1Update);
+                c.setCom2(com2Update);
+                c.setCom3(com3Update);
+                c.setCom4(com4Update);
+                c.setCom5(com5Update);
+                c.setCom6(com6Update);
+                c.setSpinType(spinTypeUpdate);
+                c.setSpinSize(spintSizeUpdate);
+
+                ////////ADDED TODAY
+                if (mImageBitmap ==null){
+                    //I haven't done anything to change the picture, don't need to change the blob
+                    c.setThumbnail(imageBlob);
+                } else {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream(); //Just added this and line below
+                    mImageBitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+                    c.setThumbnail(stream.toByteArray());
+                }
+                //The update button is not updating the blob to the corresponding photo, and this is why
+                // the thumbnail isn't updating in the listview
+                // if the photo was not updated, leave the mImageBitmap the same
+                // if the photo was updated, need to setThumbnail to the corresponding Blob
+                // NEED TO PASS THE BLOB THROUGH THE INTENT
+//                c.setThumbnail();
+                ///////
+
                 //Setting URI path to a string
 //                if (mVideoView !=null) {
 //                    c.setVideo(mVideoView.toString());
@@ -412,6 +646,8 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
                 if (mCapturedImageURI ==null) {
                     c.setPicture(image);
                     System.out.println("Image path when update is clicked" + image);
+                } else {
+                    c.setPicture(mCapturedImageURI.getPath());
                 }
 
                 System.out.println(mCapturedImageURI);
@@ -426,7 +662,8 @@ public class EditTask extends AppCompatActivity implements View.OnClickListener{
                 }
 
                 if (mCapturedVideoURI != null){
-                    c.setVideo(video);
+                    System.out.println("IN UPDATE VIDEO" + video);
+                    c.setVideo(mCapturedVideoURI.getPath());
                 }
 
                 System.out.println("HERE" + mCapturedVideoURI);

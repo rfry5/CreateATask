@@ -7,6 +7,31 @@
         <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowActionBarOverlay">true</item>
+
+        <!-- For the resting Spinner style -->
+        <item name="android:spinnerItemStyle">
+            @style/spinnerItemStyle
+        </item>
+
+        <!-- For each individual Spinner list item once clicked on -->
+        <item name="android:spinnerDropDownItemStyle">
+            @style/spinnerDropDownItemStyle
+        </item>
+
+    </style>
+
+    <style name="spinnerItemStyle">
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#FF000000</item>
+    </style>
+
+    <style name="spinnerDropDownItemStyle">
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#FF000000</item>
     </style>
 
 </resources>

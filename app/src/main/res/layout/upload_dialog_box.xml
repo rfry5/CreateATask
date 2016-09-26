@@ -22,9 +22,9 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Upload Audio"
-        android:onClick="toAudio"
-        android:id="@+id/audio_gallery"
+        android:text="Exit"
+        android:onClick="toExit"
+        android:id="@+id/exit_dialog"
         android:layout_below="@+id/video_gallery"/>
 
 

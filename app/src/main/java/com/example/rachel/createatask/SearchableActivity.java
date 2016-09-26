@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -65,6 +66,7 @@ public class SearchableActivity extends AppCompatActivity {
     ListView listView;
     DatabaseHelp helper = new DatabaseHelp(this);
     ArrayList<ItemInfo> list;
+    Integer flag;
 
 
 
@@ -104,11 +106,12 @@ public class SearchableActivity extends AppCompatActivity {
         fetchData();
         System.out.println("AFTER FETCH, SEARCHABLE ACTIVITY ");
 
-        //This is what happens when the listview item is clicked
+        //This is what happens when the item is clicked in the ListView//
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String item, sku, location, description, image, video, post;
+                String item, sku, location, description, image, video, post, c1, c2, c3, c4, c5, c6, spinnerType, spinnerSize;
+                byte [] thumbnailblob;
 
                 //Add print statement
                 System.out.println("IN ON CLICK LISTENER ");
@@ -123,6 +126,20 @@ public class SearchableActivity extends AppCompatActivity {
                 System.out.println("Image after update " + image);
                 video = row.getVideo();
                 System.out.println("Video after update " + video);
+                c1 = row.getCom1();
+
+                c2 = row.getCom2();
+                c3 = row.getCom3();
+                c4 = row.getCom4();
+                c5 = row.getCom5();
+                c6 = row.getCom6();
+
+                spinnerType = row.getSpinType();
+                spinnerSize = row.getSpinSize();
+
+                System.out.println("INSIDE SEARCHABLE ACTIVITY LINE 128 " + c1);
+
+                thumbnailblob = row.getThumbnail();
 
                 //Passing item information into EditTask activity
                 Intent itemDisplay = new Intent(getApplicationContext(), EditTask.class);
@@ -133,6 +150,18 @@ public class SearchableActivity extends AppCompatActivity {
                 itemDisplay.putExtra("image", image);
                 itemDisplay.putExtra("video", video);
                 itemDisplay.putExtra("position", post);
+                itemDisplay.putExtra("com1", c1);
+                itemDisplay.putExtra("com2", c2);
+                itemDisplay.putExtra("com3", c3);
+                itemDisplay.putExtra("com4", c4);
+                itemDisplay.putExtra("com5", c5);
+                itemDisplay.putExtra("com6", c6);
+                itemDisplay.putExtra("spinType", spinnerType);
+                itemDisplay.putExtra("spinSize", spinnerSize);
+
+                ///ADDED TODAY
+                itemDisplay.putExtra("thumbnailblob", thumbnailblob); //Just added
+                //////
                 startActivity(itemDisplay);
 
             }
@@ -216,18 +245,19 @@ public class SearchableActivity extends AppCompatActivity {
         mBottomBar = BottomBar.attach(this, savedInstanceState);
         mBottomBar.useFixedMode(); //Shows all titles with more than 3 buttons
         mBottomBar.setItems(R.menu.bottombar_menu);
+        //Need to setDefaultTabPosition to the activity (tab 2 is search library, etc.) or it won't state
+        // in that default state
+        mBottomBar.setDefaultTabPosition(2);
         mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
             @Override
             public void onMenuTabSelected(@IdRes int menuItemId) {
                 if (menuItemId == R.id.bottomBarItemHome) {
-                    // The user selected item number one.
+//                    // The user selected item number one.
                     startActivity(new Intent(SearchableActivity.this, MainActivity.class));
-                } else if (menuItemId == R.id.bottomBarItemTwo) {
-                    startActivity(new Intent(SearchableActivity.this, SearchableActivity.class));
                 } else if (menuItemId == R.id.bottomBarItemThree) {
                     startActivity(new Intent(SearchableActivity.this, Dashboard.class));
-//                } else if (menuItemId == R.id.bottomBarItemOne) {
-//                    startActivity(new Intent(SearchableActivity.this, CreateTask.class));
+                } else if (menuItemId == R.id.bottomBarItemOne) {
+                    startActivity(new Intent(SearchableActivity.this, CreateTask.class));
                 }
             }
 
@@ -239,6 +269,16 @@ public class SearchableActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    //Bottom bar navigation
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Necessary to restore the BottomBar's state, otherwise we would
+        // lose the current tab on orientation change.
+        mBottomBar.onSaveInstanceState(outState);
     }
 
 //    @Override
@@ -333,19 +373,35 @@ public class SearchableActivity extends AppCompatActivity {
                 }
             }
             private void createMenu1(SwipeMenu menu) {
+                //CREATING FLAG ICON
+                SwipeMenuItem item2 = new SwipeMenuItem(
+                        getApplicationContext());
+                item2.setBackground(new ColorDrawable(Color.rgb(0xFF,
+                        0x99, 0x00)));
+                item2.setWidth(200);
+                item2.setIcon(R.drawable.ic_assistant_photo_black_24dp);
+                item2.setTitle("FLAG");
+                item2.setTitleSize(16);
+                item2.setTitleColor(Color.WHITE);
+                menu.addMenuItem(item2);
+
+                //CREATING DELETE ICON
                 SwipeMenuItem item1 = new SwipeMenuItem(
                         getApplicationContext());
                 item1.setBackground(new ColorDrawable(Color.rgb(0xF9,
                         0x3F, 0x25)));
                 item1.setWidth(200);
                 item1.setIcon(R.drawable.ic_delete_black_40dp);
+                item1.setTitle("DELETE");
+                item1.setTitleSize(16);
+                item1.setTitleColor(Color.WHITE);
                 menu.addMenuItem(item1);
             }
         };
         // set creator
         mListView.setMenuCreator(creator);
 
-        //Delete click after swiping DELETE FROM LISTVIEW NEED TO FIX
+        //Delete click after swiping in ListView
         mListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
@@ -354,18 +410,42 @@ public class SearchableActivity extends AppCompatActivity {
                 Integer actualID = allinfo.get(position).getID();
 
                 System.out.println("Position from searchable activity " + position);
+
                 switch (index) {
+
                     case 0:
-                        // delete
-//                        System.out.println("in delete button");
-//                        ItemInfo c = new ItemInfo();
-//                        c.getID();
+                        //FLAG for urgency (sent to dashboard)
+                        //Adding "1" into urgency column
+
+                        Integer urg = 1;
+
+                        ItemInfo c = new ItemInfo();
+                        c.setID(allinfo.get(position).getID());
+                        c.setItemname(allinfo.get(position).getItemname());
+                        c.setSku(allinfo.get(position).getSku());
+                        c.setLocation(allinfo.get(position).getLocation());
+                        c.setDescription(allinfo.get(position).getDescription());
+                        c.setCom1(allinfo.get(position).getCom1());
+                        c.setCom2(allinfo.get(position).getCom2());
+                        c.setCom3(allinfo.get(position).getCom3());
+                        c.setCom4(allinfo.get(position).getCom4());
+                        c.setCom5(allinfo.get(position).getCom5());
+                        c.setCom6(allinfo.get(position).getCom6());
+                        c.setSpinType(allinfo.get(position).getSpinType());
+                        c.setSpinSize(allinfo.get(position).getSpinSize());
+                        c.setItemFlag(urg);
+
+//                        String testing = allinfo.get(position).getItemname();
+//                        System.out.println("IN FLAG ITEM SWIPE " + testing);
+
+                        helper.flagItem(c);
+
+                        break;
+
+                    case 1:
+                        // DELETE from database
                         helper.deleteItem(actualID);
-////                        System.out.println(Arrays.toString(item));
-//                        allinfo.remove(position);
-                        System.out.println("After remove position");
                         adapter.notifyDataSetChanged();
-                        System.out.println("After data change");
                         fetchData();
                         break;
                 }

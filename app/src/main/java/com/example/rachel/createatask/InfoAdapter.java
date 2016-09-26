@@ -103,7 +103,7 @@ public class InfoAdapter extends ArrayAdapter<ItemInfo> implements Filterable {
         txtSku.setText(item.getSku());
         txtLocation.setText(item.getLocation());
         txtDescription.setText(item.getDescription());
-        System.out.println(item.getDescription());
+        System.out.println("Image Thumbnail in Info Adapter" + item.getThumbnail());
         mImageView.setImageBitmap(getImage(item.getThumbnail()));
 
         // Return the completed view to render on screen

@@ -34,7 +34,7 @@ import static com.example.rachel.createatask.R.string.username;
 
 public class DatabaseHelp extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 23;
     private static final String DATABASE_NAME = "dataManager.db";
 
     //Table names
@@ -56,8 +56,17 @@ public class DatabaseHelp extends SQLiteOpenHelper {
     static final String COLUMN_IMAGE = "image";
     static final String COLUMN_VIDEO = "video";
     static final String COLUMN_IMAGE_BLOB ="blob";
+    static final String COLUMN_COM_1 = "com1";
+    static final String COLUMN_COM_2 = "com2";
+    static final String COLUMN_COM_3 = "com3";
+    static final String COLUMN_COM_4 = "com4";
+    static final String COLUMN_COM_5 = "com5";
+    static final String COLUMN_COM_6 = "com6";
+    static final String COLUMN_SIZE_SPINNER = "size";
+    static final String COLUMN_TYPE_SPINNER = "type";
+    static final String COLUMN_FLAG = "urgency";
 
-    static final String[] COLUMNS = {COLUMN_ID,COLUMN_ITEMNAME,COLUMN_SKU,COLUMN_LOCATION,COLUMN_DESCRIPTION,COLUMN_IMAGE,COLUMN_VIDEO,COLUMN_IMAGE_BLOB};
+    static final String[] COLUMNS = {COLUMN_ID,COLUMN_ITEMNAME,COLUMN_SKU,COLUMN_LOCATION,COLUMN_DESCRIPTION,COLUMN_IMAGE,COLUMN_VIDEO,COLUMN_IMAGE_BLOB,COLUMN_COM_1};
     static final String[] COLUMN_DESC = {COLUMN_ID,COLUMN_ITEMNAME,COLUMN_SKU,COLUMN_LOCATION,COLUMN_DESCRIPTION};
 
 
@@ -78,9 +87,19 @@ public class DatabaseHelp extends SQLiteOpenHelper {
 //            COLUMN_ITEMNAME + " TEXT," + COLUMN_SKU + " TEXT," + COLUMN_DESCRIPTION + " TEXT," +
 //            COLUMN_LOCATION + " TEXT," + COLUMN_IMAGE + " TEXT," + COLUMN_VIDEO + " TEXT" + ");";
 
+//    private static final String CREATE_TABLE_ITEM_DATA = "CREATE TABLE " +  TABLE_ITEM_DATA + "("+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+//            COLUMN_ITEMNAME + " TEXT," + COLUMN_SKU + " TEXT," + COLUMN_LOCATION + " TEXT," +
+//            COLUMN_DESCRIPTION + " TEXT," + COLUMN_IMAGE + " TEXT," + COLUMN_VIDEO + " TEXT," + COLUMN_IMAGE_BLOB + " BLOB" + ");";
+
+//    private static final String CREATE_TABLE_ITEM_DATA = "CREATE TABLE " +  TABLE_ITEM_DATA + "("+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+//            COLUMN_ITEMNAME + " TEXT," + COLUMN_SKU + " TEXT," + COLUMN_LOCATION + " TEXT," +
+//            COLUMN_DESCRIPTION + " TEXT," + COLUMN_IMAGE + " TEXT," + COLUMN_VIDEO + " TEXT," + COLUMN_IMAGE_BLOB + " BLOB," + COLUMN_COM_1 + " TEXT" + ");";
+
     private static final String CREATE_TABLE_ITEM_DATA = "CREATE TABLE " +  TABLE_ITEM_DATA + "("+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             COLUMN_ITEMNAME + " TEXT," + COLUMN_SKU + " TEXT," + COLUMN_LOCATION + " TEXT," +
-            COLUMN_DESCRIPTION + " TEXT," + COLUMN_IMAGE + " TEXT," + COLUMN_VIDEO + " TEXT," + COLUMN_IMAGE_BLOB + " BLOB" + ");";
+            COLUMN_DESCRIPTION + " TEXT," + COLUMN_IMAGE + " TEXT," + COLUMN_VIDEO + " TEXT," + COLUMN_IMAGE_BLOB + " BLOB," + COLUMN_COM_1 + " TEXT," +
+            COLUMN_COM_2 + " TEXT," + COLUMN_COM_3 + " TEXT," + COLUMN_COM_4 + " TEXT," + COLUMN_COM_5 + " TEXT," + COLUMN_COM_6 + " TEXT," +
+            COLUMN_SIZE_SPINNER + " INTEGER," + COLUMN_TYPE_SPINNER + " INTEGER," + COLUMN_FLAG + " INTEGER" + ");";
 
 
 
@@ -175,7 +194,7 @@ public class DatabaseHelp extends SQLiteOpenHelper {
         db.close();
     }
 
-    ///////Storing Item Information into Database//////
+    ///////Saving Item Information into Database//////
     public void insertItem(ItemInfo c) {
 
         db = this.getWritableDatabase();
@@ -192,6 +211,18 @@ public class DatabaseHelp extends SQLiteOpenHelper {
         values.put(COLUMN_IMAGE, c.getPicture());
         values.put(COLUMN_VIDEO, c.getVideo());
         values.put(COLUMN_IMAGE_BLOB, c.getThumbnail());
+
+        //9/21 Trying to save command line 1
+        values.put(COLUMN_COM_1, c.getCom1());
+        values.put(COLUMN_COM_2, c.getCom2());
+        values.put(COLUMN_COM_3, c.getCom3());
+        values.put(COLUMN_COM_4, c.getCom4());
+        values.put(COLUMN_COM_5, c.getCom5());
+        values.put(COLUMN_COM_6, c.getCom6());
+
+        //Spinner values
+        values.put(COLUMN_TYPE_SPINNER, c.getSpinType());
+        values.put(COLUMN_SIZE_SPINNER, c.getSpinSize());
 
         //Inserts into database
         db.insert(TABLE_ITEM_DATA, null, values);
@@ -245,6 +276,18 @@ public class DatabaseHelp extends SQLiteOpenHelper {
         values.put(COLUMN_DESCRIPTION, c.getDescription());
         values.put(COLUMN_IMAGE, c.getPicture());
         values.put(COLUMN_VIDEO, c.getVideo());
+        values.put(COLUMN_COM_1, c.getCom1());
+        values.put(COLUMN_COM_2, c.getCom2());
+        values.put(COLUMN_COM_3, c.getCom3());
+        values.put(COLUMN_COM_4, c.getCom4());
+        values.put(COLUMN_COM_5, c.getCom5());
+        values.put(COLUMN_COM_6, c.getCom6());
+        values.put(COLUMN_TYPE_SPINNER, c.getSpinType());
+        values.put(COLUMN_SIZE_SPINNER, c.getSpinSize());
+
+        /////ADDED TODAY
+        values.put(COLUMN_IMAGE_BLOB, c.getThumbnail()); //just added
+        //////
         System.out.println("UPDATING");
 
         Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cursor));
@@ -265,11 +308,6 @@ public class DatabaseHelp extends SQLiteOpenHelper {
             }
             while(cursor.moveToNext());
         }
-//        return db.update(TABLE_ITEM_DATA, values, selection, selectionArgs);
-        // updating row
-//        return db.update(TABLE_ITEM_DATA, values, "_id =?",
-//                new String[] { "_id" });
-//        db.close();
         return db.update(TABLE_ITEM_DATA, values, "_id = ?", new String[] {String.valueOf(c.getID())});
     }
 
@@ -280,14 +318,15 @@ public class DatabaseHelp extends SQLiteOpenHelper {
         db = this.getWritableDatabase();
         String query = "select _id from " +TABLE_ITEM_DATA;
         Cursor cursor = db.rawQuery(query, null);
-                Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cursor));
+//        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cursor));
         cursor.moveToFirst();
         cursor.getInt(0);
-//        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cursor));
-        System.out.println("in delete fxn at getInt0 " + cursor.getInt(0));
-        System.out.println("This is the ID were sending " + id);
 
-        System.out.println("This is the printout of getInt0 " + cursor.getInt(0));
+//        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cursor));
+//        System.out.println("in delete fxn at getInt0 " + cursor.getInt(0));
+//        System.out.println("This is the ID were sending " + id);
+//        System.out.println("This is the printout of getInt0 " + cursor.getInt(0));
+
         db.delete(TABLE_ITEM_DATA, "_id = ?", new String[] { String.valueOf(id) });
         db.execSQL("VACUUM");
         db.close();
@@ -302,46 +341,6 @@ public class DatabaseHelp extends SQLiteOpenHelper {
 
         return numItems;
     }
-
-
-    //Uncomment to clear username records (also uncomment in Register.class)
-//    public void deleteAll()
-//    {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        db.delete(TABLE_NAME,null,null);
-//        db.delete(TABLE_ITEM_DATA,null,null);
-//        db.close();
-//    }
-
-//    //Returns the id of the TABLE of the row that matches name,sku and location
-//    public int find(ArrayList<String> opts){
-//        int id = -1;
-//        int count = 0;
-//        //opts holds the name, sku, location
-//        db = this.getReadableDatabase();
-//        String query = "select * from items";
-//        Cursor cur = db.rawQuery(query, null);
-//        cur.moveToFirst();
-//
-//        do{
-//            String name = cur.getString(1);
-//            String sku = cur.getString(2);
-//            String location = cur.getString(3);
-//            System.out.println("PRINTING LINE VALUES: " + name);
-//
-//            if(name.equals(opts.get(0)) && sku.equals(opts.get(1)) && location.equals(opts.get(2))){
-//                System.out.println("found match for " + name);
-//                id = cur.getInt(0);
-//            }
-//            count++;
-//
-//        }while (cur.moveToNext());
-//
-//        if (id == -1){
-//            System.out.println("THERE WAS NO MATCH: Databasehelp.java Line 294");
-//        }
-//            return count;
-//    }
 
     //////////////////////////////////////////
     //Returns all item info from the database
@@ -373,8 +372,15 @@ public class DatabaseHelp extends SQLiteOpenHelper {
             c.setThumbnail(cur.getBlob(7));
             //Added with Ben
             c.setID(cur.getInt(0));
-//            System.out.println("Inside getAll from database help for ArrayList");
-//            System.out.println("Inside getAll from database help for ArrayList " + c.getID());
+            c.setCom1(cur.getString(8));
+            c.setCom2(cur.getString(9));
+            c.setCom3(cur.getString(10));
+            c.setCom4(cur.getString(11));
+            c.setCom5(cur.getString(12));
+            c.setCom6(cur.getString(13));
+            c.setSpinSize(cur.getString(14));
+            c.setSpinType(cur.getString(15));
+
             info.add(c);
         } while (cur.moveToNext());
         //Just added
@@ -382,6 +388,152 @@ public class DatabaseHelp extends SQLiteOpenHelper {
         System.out.println("END OF DATABASEHELP");
         return info;
     }
+
+    /////////FLAG database//////////
+    public int flagItem(ItemInfo c) {
+        String colID;
+        db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        //Retrieving all of the column ids
+        String query = "select _id from " +TABLE_ITEM_DATA;
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        //This should be the ID of the position the item is in
+        cursor.getInt(0);
+        System.out.println("getID " + cursor.getInt(0));
+
+        //Getting values/item inputs
+        values.put(COLUMN_FLAG, c.getItemFlag());
+        System.out.println("GETTER " + c.getItemFlag());
+        System.out.println("FLAG ITEM");
+
+        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cursor));
+
+        if(cursor.moveToFirst())
+        {
+            do{
+                colID = cursor.getString(0);
+                System.out.println("column id " + cursor.getString(0));
+
+                if(colID.equals(String.valueOf(cursor.getInt(0))))
+                {
+//                    db.replace(TABLE_ITEM_DATA, "urgency", values);
+                    db.update(TABLE_ITEM_DATA, values, "_id = ?", new String[] {String.valueOf(c.getID())});
+                    System.out.println(values);
+
+                    break;
+                }
+            }
+            while(cursor.moveToNext());
+        }
+        return db.update(TABLE_ITEM_DATA, values, "_id = ?", new String[] {String.valueOf(c.getID())});
+    }
+    ///////FLAG////////
+
+
+    //////Returns urgent items for dashboard///////
+    public ArrayList<ItemInfo> getUrgent(){
+
+        boolean debug = false;
+        if (debug == true)
+            System.out.println("START OF GETURGENT IN DATABASE HELP");
+
+        Integer urg;
+
+        ArrayList<ItemInfo> info = new ArrayList<ItemInfo>();
+        db = this.getReadableDatabase();
+        String query = "select * from " +TABLE_ITEM_DATA;
+        //Selects all values from urgent column
+        //If column value equals 1, set info, else nothing
+//        String query = "select * from items";
+        Cursor cur = db.rawQuery(query, null);
+
+        cur.moveToFirst();
+        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cur));
+
+        cur.getInt(16);
+
+        if(cur.moveToFirst())
+            do{
+                urg = cur.getInt(16);
+                System.out.println("urgency value " + cur.getInt(16));
+
+                if(urg.equals(1))
+                {
+                   ItemInfo c = new ItemInfo();
+                    c.setItemname(cur.getString(1));
+                    System.out.println(cur.getString(1));
+                    c.setSku(cur.getString(2));
+                    c.setLocation(cur.getString(3));
+                    c.setDescription(cur.getString(4));
+                    System.out.println(cur.getString(4));
+                    //Setting URI path to a string
+                    c.setPicture(cur.getString(5));
+                    c.setVideo(cur.getString(6));
+                    c.setThumbnail(cur.getBlob(7));
+                    //Added with Ben
+                    c.setID(cur.getInt(0));
+                    c.setCom1(cur.getString(8));
+                    c.setCom2(cur.getString(9));
+                    c.setCom3(cur.getString(10));
+                    c.setCom4(cur.getString(11));
+                    c.setCom5(cur.getString(12));
+                    c.setCom6(cur.getString(13));
+                    c.setSpinSize(cur.getString(14));
+                    c.setSpinType(cur.getString(15));
+
+                    info.add(c);
+                }
+            } while(cur.moveToNext());
+            cur.close();
+            System.out.println("END OF DATABASEHELP get URGENT");
+            return info;
+    }
+
+    /////Resolve and remove urgency from dashboard/////
+    //similar to update, updating urgency column to null
+    // int id is messed up... position is wrong!
+    public int resolveItems(int id) {
+        String colID;
+        db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        System.out.println("INSIDE RESOLVE ITEMS");
+        System.out.println(id);
+
+        //Retrieving all of the column ids
+        String query = "select _id from " +TABLE_ITEM_DATA;
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        //This should be the ID of the position the item is in
+        cursor.getInt(0);
+        System.out.println("getID " + cursor.getInt(0));
+
+        //Getting values/item inputs
+        values.put(COLUMN_FLAG, 0);
+
+        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(cursor));
+
+        if(cursor.moveToFirst())
+        {
+            do{
+                colID = cursor.getString(0);
+                System.out.println("This is the column ID at cursor 0 " + colID);
+                System.out.println("Print getInt0  " + cursor.getInt(0));
+
+                if(colID.equals(String.valueOf(cursor.getInt(0))))
+                {
+                    db.update(TABLE_ITEM_DATA, values, "_id = ?", new String[] {String.valueOf(id)});
+                    System.out.println("In here");
+                    break;
+                }
+            }
+            while(cursor.moveToNext());
+        }
+        return db.update(TABLE_ITEM_DATA, values, "_id = ?", new String[] {String.valueOf(id)});
+    }
+
 
     ///////////////////////////////////////////
     //To read database in table (from GitHub)//

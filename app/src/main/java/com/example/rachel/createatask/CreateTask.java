@@ -32,6 +32,8 @@ import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -40,6 +42,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -68,8 +71,9 @@ import static android.os.Environment.getExternalStoragePublicDirectory;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
 import static com.example.rachel.createatask.R.layout.audio;
+import android.widget.AdapterView.OnItemSelectedListener;
 
-public class CreateTask extends AppCompatActivity implements View.OnClickListener {
+public class CreateTask extends AppCompatActivity implements View.OnClickListener, OnItemSelectedListener {
 
 
     private Bitmap mImageBitmap;
@@ -98,6 +102,10 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     Button bSaveButton, bRecord;
     ImageButton mPlayButton;
     EditText etItemName, etSku, etLocation, etDescription;
+    String spinnerType, spinnerSize;
+
+    //For prompt command text
+    EditText etCom1, etCom2, etCom3, etCom4, etCom5, etCom6;
 
 
     //Setting button listener for take photo and take video
@@ -119,40 +127,58 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 }
             };
 
-//    Button.OnClickListener mUploadGalleryListener =
-//            new Button.OnClickListener(){
-//                @Override
-//                public void onClick(View v) {
-//                    activeGalleryPhoto();
-//                }
-//            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_create);
+        setContentView(R.layout.new_create); //CHANGED FROM NEW_CREATE
 
         etItemName = (EditText) findViewById(R.id.item_name);
         etSku = (EditText) findViewById(R.id.sku);
         etDescription = (EditText) findViewById(R.id.description);
         etLocation = (EditText) findViewById(R.id.location);
+        etCom1 = (EditText) findViewById(R.id.command_line1);
+        etCom2 = (EditText) findViewById(R.id.command_line2);
+        etCom3 = (EditText) findViewById(R.id.command_line3);
+        etCom4 = (EditText) findViewById(R.id.command_line4);
+        etCom5 = (EditText) findViewById(R.id.command_line5);
+        etCom6 = (EditText) findViewById(R.id.command_line6);
+
+        //Spinner for size selection
+        Spinner spinner = (Spinner) findViewById(R.id.size_spinner);
+        spinner.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.size_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        //Spinner for item type selection
+        Spinner spinnerType = (Spinner) findViewById(R.id.type_spinner);
+        spinnerType.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapterType = ArrayAdapter.createFromResource(this,
+                R.array.type_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinnerType.setAdapter(adapterType);
+
 
         //For save button
         bSaveButton = (Button) findViewById(R.id.save_button);
         bSaveButton.setOnClickListener(this);
-        //For recrod audio
-        bRecord = (Button) findViewById(R.id.record_audio_button);
-        bRecord.setOnClickListener(this);
 
-        //Audio
-        Intent i = getIntent();
-        String audio = i.getStringExtra("audio");
-        System.out.println("RETURN BACK TO CREATE TASK " + audio);
+//        //Audio
+//        Intent i = getIntent();
+//        String audio = i.getStringExtra("audio");
+//        System.out.println("RETURN BACK TO CREATE TASK " + audio);
 
         //Bottom Bar navigation
         mBottomBar = BottomBar.attach(this, savedInstanceState);
         mBottomBar.useFixedMode(); //Shows all titles with more than 3 buttons
         mBottomBar.setItems(R.menu.bottombar_menu);
+        mBottomBar.setDefaultTabPosition(0);
         mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
             @Override
             public void onMenuTabSelected(@IdRes int menuItemId) {
@@ -193,16 +219,38 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 mTakeVidOnClickListener,
                 MediaStore.ACTION_VIDEO_CAPTURE
         );
-
-//        Button gallBtn = (Button) findViewById(R.id.gallery_upload);
-//        setBtnListenerOrDisable(
-//                gallBtn,
-//                mUploadGalleryListener,
-//                MediaStore.ACTION_PICK
-//        );
     }
 
-    //When upload from gallery button is clicked
+    ///Saving spinner state
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        switch (parent.getId()) {
+            case R.id.size_spinner:
+                // An item was selected. You can retrieve the selected item using
+                parent.getItemAtPosition(pos);
+                spinnerSize = parent.getItemAtPosition(pos).toString();
+
+                System.out.println("spinnerSize in onItemSwitch " + parent.getItemAtPosition(pos));
+
+                break;
+
+            case R.id.type_spinner:
+
+                parent.getItemAtPosition(pos);
+                spinnerType = parent.getItemAtPosition(pos).toString();
+
+                System.out.println("spinnerType in onItemSwitch " + parent.getItemAtPosition(pos));
+
+                break;
+
+        }
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+    }
+
+    ////When upload from gallery button is clicked (gallUpload is defined as onClick in new_create xml file)
     public void gallUpload(View view){
         System.out.println("in gallery upload");
         final Dialog dialog = new Dialog(CreateTask.this);
@@ -218,9 +266,14 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 activeGalleryVideo();
             }
         });
+        dialog.findViewById(R.id.exit_dialog).setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                dialog.dismiss();;
+            }
+        });
     }
 
-    //Creating URI from file
+    ////Creating URI from file
     private static Uri getOutputMediaFileUri(int type){
         return fromFile(getOutputMediaFile(type));
     }
@@ -382,6 +435,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             String videoPath = cursor.getString(columnIndex);
             cursor.close();
             mVideoView.setVideoPath(videoPath);
+            mCapturedVideoURI = Uri.fromFile(new File(videoPath));
             mVideoView.seekTo(100);
             mVideoView.setOnTouchListener(new View.OnTouchListener()
             {
@@ -449,19 +503,46 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 EditText location = (EditText) findViewById(R.id.location);
                 EditText description = (EditText) findViewById(R.id.description);
 
+                System.out.println("IN SAVE " + spinnerType);
+                System.out.println("IN SAVE " + spinnerSize);
+
                 String itemnamestring = itemname.getText().toString();
                 String skustring = sku.getText().toString();
                 String locationstring = location.getText().toString();
                 String descriptionstring = description.getText().toString();
+
+                //For command line text
+                String c1 = etCom1.getText().toString();
+                System.out.println(c1);
+                String c2 = etCom2.getText().toString();
+                System.out.println(c2);
+                String c3 = etCom3.getText().toString();
+                String c4 = etCom4.getText().toString();
+                String c5 = etCom5.getText().toString();
+                String c6 = etCom6.getText().toString();
+
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 mImageBitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+                System.out.println("MIMAGE BITMAP IN CREATETASK SAVE ");
 
-                //Passing through database
+                //Passing through database (setting them here, getting them in database help)
                 ItemInfo c = new ItemInfo();
                 c.setItemname(itemnamestring);
                 c.setSku(skustring);
                 c.setLocation(locationstring);
                 c.setDescription(descriptionstring);
+                c.setThumbnail(stream.toByteArray());
+                //Setting prompt command lines
+                c.setCom1(c1);
+                c.setCom2(c2);
+                c.setCom3(c3);
+                c.setCom4(c4);
+                c.setCom5(c5);
+                c.setCom6(c6);
+                //Setting spinners
+                c.setSpinType(spinnerType);
+                c.setSpinSize(spinnerSize);
+
 
                 //If the null, return null, if I uploaded photo, set it to that path, if I took photo, set it to that path
                 //Setting URI path to a string
@@ -475,11 +556,13 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 //If the video path is null, return null
                 if (mCapturedVideoURI == null){
                     c.setVideo(null);
+                    System.out.println("IN NULL FILEPATH FOR VIDEO" );
                 } else if (mCapturedVideoURI.getPath() != null){
+                    System.out.println("FILE PATH OF UPLOADED PHOTO" + mCapturedVideoURI.getPath());
                     c.setVideo(mCapturedVideoURI.getPath());
                 }
 //                System.out.println(mCapturedVideoURI.getPath());
-                c.setThumbnail(stream.toByteArray());
+//                c.setThumbnail(stream.toByteArray());
 
                 //Inserting in database
                 helper.insertItem(c);
@@ -493,9 +576,9 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
                 break;
 
-            case R.id.record_audio_button:
-                System.out.println("In record click");
-                startActivity(new Intent(this, RecordAudio.class));
+//            case R.id.record_audio_button:
+//                System.out.println("In record click");
+//                startActivity(new Intent(this, RecordAudio.class));
         }
     }
 }

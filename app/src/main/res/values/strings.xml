@@ -6,5 +6,18 @@
     <string name="username"><u>Username</u></string>
     <string name="password"><u>Password</u></string>
     <string name="search_hint">search hint</string>
+    <string-array name="size_array">
+        <item>Item Size</item>
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+    <string-array name="type_array">
+        <item>Item Type</item>
+        <item>Individual</item>
+        <item>Box</item>
+        <item>Pallet</item>
+    </string-array>
+
 
 </resources>

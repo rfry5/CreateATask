@@ -32,28 +32,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="Item Name"
-            android:textSize="15sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/sku_listview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="SKU"
-            android:textSize="15sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/location_listview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="Location"
-            android:textSize="15sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/description_listview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="Description"
-            android:textSize="15sp" />
+            android:textSize="20sp" />
 
     </LinearLayout>
 

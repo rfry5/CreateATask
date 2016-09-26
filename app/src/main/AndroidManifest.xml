@@ -52,7 +52,8 @@
 
         <activity
             android:name=".CreateTask"
-            android:uiOptions="splitActionBarWhenNarrow">
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:windowSoftInputMode="adjustPan">
         </activity>
 
         <activity
@@ -74,7 +75,8 @@
 
         <activity
             android:name=".EditTask"
-            android:uiOptions="splitActionBarWhenNarrow">
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:windowSoftInputMode="adjustPan">
         </activity>
 
         <activity android:name="com.example.rachel.createatask.AndroidDatabaseManager"/>
